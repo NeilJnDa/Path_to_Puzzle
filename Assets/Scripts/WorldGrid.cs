@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine.Utility;
 
 public enum Direction
 {
@@ -24,7 +25,14 @@ public class WorldGrid : MonoBehaviour
     [HideInInspector]
     public Cell[,] jigsawMap;
 
+
     private List<GameObject> cellAnchors = new List<GameObject>();
+
+    //JigsawMode
+    public bool jigsawMode;
+    public Cinemachine.CinemachineVirtualCamera vcamJigsaw;
+    public Cinemachine.CinemachineVirtualCamera vcamPlayer;
+
     private void Awake()
     {
         //单例
@@ -48,6 +56,40 @@ public class WorldGrid : MonoBehaviour
                     Debug.Log(i + " " + j + " " + jigsawMap[i, j]);
                 }
             }
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (jigsawMode)
+            {
+                //退出
+                vcamJigsaw.m_Priority = 10;
+                vcamPlayer.m_Priority = 100;
+                FindObjectOfType<Player>().movable = true;
+                for (int i = 0; i < horizontalCells; i++)
+                {
+                    for (int j = 0; j < verticalCells; j++)
+                    {
+                        if (jigsawMap[i,j]) jigsawMap[i, j].JigsawMode(false);
+                    }
+                }
+                jigsawMode = false;
+            }
+            else
+            {
+                //进入
+                vcamJigsaw.m_Priority = 100;
+                vcamPlayer.m_Priority = 10;
+                FindObjectOfType<Player>().movable = false;
+                for (int i = 0; i < horizontalCells; i++)
+                {
+                    for (int j = 0; j < verticalCells; j++)
+                    {
+                        if (jigsawMap[i, j]) jigsawMap[i, j].JigsawMode(true);
+                    }
+                }
+                jigsawMode = true;
+            }
+
         }
     }
 
@@ -93,7 +135,7 @@ public class WorldGrid : MonoBehaviour
     public void SetCellAnchors(bool b)
     {
         foreach (var anchor in cellAnchors)
-        {
+        {   
             anchor.SetActive(b);
         }
     }

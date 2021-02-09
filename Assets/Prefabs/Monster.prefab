@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4252421247669855993}
   - component: {fileID: 4252421247669855992}
   - component: {fileID: 5533323029995138950}
+  - component: {fileID: 3319701881421108958}
   m_Layer: 0
   m_Name: Monster
   m_TagString: Monster
@@ -96,9 +97,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88da642237b0cbd4fbe533ebeb50168d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movable: 1
   moveDuration: 0.2
+  fatherCell: {fileID: 0}
   targetPos: {x: 0, y: 0, z: 0}
   faceTo: 0
+  AfterDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &4252421247669855992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,3 +138,16 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3319701881421108958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4252421247669855996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5bd79c6afab554f871949389129117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  basePos: {x: 0, y: 0, z: 0}

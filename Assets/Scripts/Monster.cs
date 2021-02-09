@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Events;
 
 public class Monster : MonoBehaviour, IChildLoader
 {
-    Cell fatherCell;
+
     CellChild cellChild;
     public bool movable = true;
     bool isMoving = false;
     public float moveDuration = 0.2f;
     [HideInInspector]
+    public Cell fatherCell;
+    [HideInInspector]
     public Vector3 targetPos = new Vector3();
     public Direction faceTo;
 
+    public UnityEvent AfterDeath = new UnityEvent();
     void Start()
     {
         try
@@ -41,7 +45,7 @@ public class Monster : MonoBehaviour, IChildLoader
         Vector2Int playerPos =  player.TargetPosInCell();
         Vector2Int pos = this.PosInCell();
         int distance = int.MaxValue;
-        Debug.Log(playerPos + " " + pos);
+        //Debug.Log(playerPos + " " + pos);
         if(playerPos.x == pos.x)
         {
             distance = playerPos.y - pos.y;
@@ -91,12 +95,89 @@ public class Monster : MonoBehaviour, IChildLoader
                 Debug.LogError(this.gameObject.name + "has no father Cell");
                 return;
             }
-            if (fatherCell.CanMoveThis(cellChild, direction)) StartCoroutine(MoveProcess(direction));
+            if (CanMoveThis(cellChild, direction)) StartCoroutine(MoveProcess(direction));
             else
             {
                 //Debug.Log(this.gameObject.name + "无法移动或进入死亡过程"); 
             }
         }
+    }
+
+    public bool CanMoveThis(CellChild child, Direction direction)
+    {
+        Vector2Int originalPos = fatherCell.PosInCell(child.transform);
+        Vector2Int targetPos = originalPos;
+        targetPos += Cell.DirectionVector[direction];
+        Cell targetCell = fatherCell;
+        bool isCrossingCell = false;
+
+        #region 是否跨越cell边缘
+        if (targetPos.x == WorldGrid.Instance.cellLength || targetPos.x == -1 ||
+            targetPos.y == WorldGrid.Instance.cellWidth || targetPos.y == -1)
+        {
+            isCrossingCell = true;
+            Debug.Log(child.name + "尝试跨越Cell");
+        }
+        if (targetPos.x == WorldGrid.Instance.cellLength)
+        {
+            targetCell = fatherCell.GetNextCell(Direction.right);
+            targetPos.x = 0;
+        }
+        else if (targetPos.x == -1)
+        {
+            targetCell = fatherCell.GetNextCell(Direction.left);
+            targetPos.x = WorldGrid.Instance.cellLength - 1;
+        }
+        else if (targetPos.y == WorldGrid.Instance.cellWidth)
+        {
+            targetCell = fatherCell.GetNextCell(Direction.up);
+            targetPos.y = 0;
+        }
+        else if (targetPos.y == -1)
+        {
+            targetCell = fatherCell.GetNextCell(Direction.down);
+            targetPos.y = WorldGrid.Instance.cellWidth - 1;
+        }
+        #endregion
+
+        if (!targetCell)
+        {
+            Debug.Log(child.name + "跨越Cell时目标Cell不存在，相邻没有Cell");
+            return false;
+        }
+        if (targetCell.cellGrid[targetPos.x, targetPos.y] == 0)
+        {
+            Debug.Log(targetCell.name + "的" + targetPos + "没有格子");
+            return false;   //不存在格子
+        }
+        else if (targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.None)
+        {
+            if (isCrossingCell)
+            {
+                //跨越Cell
+                fatherCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                fatherCell = targetCell;
+                child.transform.parent = targetCell.gameObject.transform;
+                return true;
+            }
+            else
+            {
+                //不跨越Cell
+                targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                return true;
+            }
+        }
+        //怪物的特殊情况，如果是怪物，可以跳坑
+        else if (child.type == GridObjectType.Enemy && targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.Abyss)
+        {
+            targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+            child.GetComponent<Monster>().Death(direction);
+            return false;
+        }
+        Debug.Log(targetCell.name + "的" + targetPos + "格有" + targetCell.groundInfo[targetPos.x, targetPos.y]);
+        return false;   //目标格子有东西
     }
     IEnumerator MoveProcess(Direction direction)
     {
@@ -138,6 +219,7 @@ public class Monster : MonoBehaviour, IChildLoader
         this.transform.gameObject.GetComponent<Animator>().Play("Death");
         Debug.Log("Anim");
         yield return new WaitForSeconds(0.1f);
+        AfterDeath.Invoke();
         isMoving = false;
     }
     public void DestroyThis()

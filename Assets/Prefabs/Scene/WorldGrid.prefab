@@ -589,3 +589,6 @@ MonoBehaviour:
   cellLength: 11
   cellWidth: 11
   sideSize: 1
+  jigsawMode: 0
+  vcamJigsaw: {fileID: 0}
+  vcamPlayer: {fileID: 0}

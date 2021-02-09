@@ -32,6 +32,7 @@ public class Cell : MonoBehaviour
     [HideInInspector]
     public int[,] cellGrid;    //是否有地板：1有，0无
     public GridObjectType[,] groundInfo;  //地板上有什么东西
+    //更合理的方案应该是，i,j-格子物体索引-groundInfo；这样可以方便通过i，j找到对应的物体
 
     private int length;
     private int width;
@@ -80,85 +81,6 @@ public class Cell : MonoBehaviour
         return pos;
     }
 
-    public bool CanMoveThis(CellChild child, Direction direction)
-    {
-        Cell fatherCell = this;
-        Vector2Int originalPos = fatherCell.PosInCell(child.transform);
-        Vector2Int targetPos = originalPos;
-        targetPos += Cell.DirectionVector[direction];
-        Cell targetCell = fatherCell;
-        bool isCrossingCell = false;
-
-        #region 是否跨越cell边缘
-        if (targetPos.x == WorldGrid.Instance.cellLength || targetPos.x == -1 ||
-            targetPos.y == WorldGrid.Instance.cellWidth || targetPos.y == -1)
-        {
-            isCrossingCell = true;
-            Debug.Log(child.name + "尝试跨越Cell");
-        }
-        if (targetPos.x == WorldGrid.Instance.cellLength)
-        {
-            targetCell = fatherCell.GetNextCell(Direction.right);
-            targetPos.x = 0;
-        }
-        else if (targetPos.x == -1)
-        {
-            targetCell = fatherCell.GetNextCell(Direction.left);
-            targetPos.x = WorldGrid.Instance.cellLength - 1;
-        }
-        else if (targetPos.y == WorldGrid.Instance.cellWidth)
-        {
-            targetCell = fatherCell.GetNextCell(Direction.up);
-            targetPos.y = 0;
-        }
-        else if (targetPos.y == -1)
-        {
-            targetCell = fatherCell.GetNextCell(Direction.down);
-            targetPos.y = WorldGrid.Instance.cellWidth - 1;
-        }
-        #endregion
-
-        if (!targetCell)
-        {
-            Debug.Log(targetPos);
-            Debug.Log(targetCell.name);
-            Debug.Log(child.name + "跨越Cell时目标Cell不存在，相邻没有Cell");
-            return false;
-        }
-        if (targetCell.cellGrid[targetPos.x, targetPos.y] == 0)
-        {
-            Debug.Log(targetCell.name + "的" + targetPos + "没有格子");
-            return false;   //不存在格子
-        }
-        else if (targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.None)
-        {
-            if (isCrossingCell)
-            {
-                //跨越Cell
-                fatherCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
-                targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
-                child.GetComponent<Player>().fatherCell = targetCell;
-                child.transform.parent = targetCell.gameObject.transform;
-                return true;
-            }
-            else
-            {
-                //不跨越Cell
-                targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
-                targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
-                return true;
-            }
-        }
-        else if (child.type == GridObjectType.Enemy && targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.Abyss)
-        {
-            //如果是怪物，可以跳坑
-            targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
-            child.GetComponent<Monster>().Death(direction);
-            return false;
-        }
-        Debug.Log(targetCell.name + "的" + targetPos + "格有" + targetCell.groundInfo[targetPos.x, targetPos.y]);
-        return false;   //目标格子有东西
-    }
     private void OnDrawGizmosSelected()
     {
         for (int i = 0; i < length; i++)
@@ -196,34 +118,24 @@ public class Cell : MonoBehaviour
     {
         return WorldGrid.Instance.GetCell(cellPosInGrid + DirectionVector[direction]);
     }
-    public void LatePlayerMove()
+    public void SmoothMoveTo(Vector3 target)
     {
-        Dictionary<Monster, float> monsters = new Dictionary<Monster, float>();
-        Player player = transform.GetComponentInChildren<Player>();
-        foreach (var child in transform.GetComponentsInChildren<Monster>())
+        transform.DOMove(target, 0.5f);
+    }
+    #region 大地图拖动
+    public void JigsawMode(bool b)
+    {
+        if (b)
         {
-            Debug.Log(child.PosInCell() + " " + player.TargetPosInCell());
-            float distance = Vector2Int.Distance(child.PosInCell(), player.TargetPosInCell());
-            monsters.Add(child, distance);
+            if (transform.GetComponentInChildren<Player>()) draggable = false;
+            else draggable = true;
         }
-
-        //从小到大排序
-        var sortedMonsters = (from pair in monsters orderby pair.Value select pair).ToList();
-
-        //通知所有子Enemy去检测是否需要移动。
-        foreach(var child in sortedMonsters)
-        {
-            child.Key.MoveCheck();
-        }
+        else draggable = false;
     }
     private void OnMouseDown()
-    {
-        if (transform.GetComponentInChildren<Player>()) draggable = false;
-        else draggable = true;
-
+    { 
         if (draggable)
         {
-
             originalPos = WorldGrid.Instance.PosInWorld(cellPosInGrid);
             WorldGrid.Instance.SetCellAnchors(true);
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.transform.position.y));
@@ -261,8 +173,6 @@ public class Cell : MonoBehaviour
             WorldGrid.Instance.SetCellAnchors(false);
         }
     }
-    public void SmoothMoveTo(Vector3 target)
-    {
-        transform.DOMove(target, 0.5f);
-    }
+    #endregion
+
 }
