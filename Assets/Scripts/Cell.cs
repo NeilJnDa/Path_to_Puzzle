@@ -41,7 +41,6 @@ public class Cell : MonoBehaviour
     public LayerMask anchorLayerMask;
     private Vector3 originalPos;
     public bool draggable = true;
-    // Start is called before the first frame update
     private void Awake()
     {
         length = 11;
@@ -133,7 +132,7 @@ public class Cell : MonoBehaviour
         else draggable = false;
     }
     private void OnMouseDown()
-    { 
+    {
         if (draggable)
         {
             originalPos = WorldGrid.Instance.PosInWorld(cellPosInGrid);
@@ -175,4 +174,28 @@ public class Cell : MonoBehaviour
     }
     #endregion
 
+    private IEnumerator CaptureByRect(Rect mRect, string mFileName)
+    {
+        //等待渲染线程结束  
+        yield return new WaitForEndOfFrame();
+        //初始化Texture2D  
+        Texture2D mTexture = new Texture2D((int)mRect.width, (int)mRect.height, TextureFormat.RGB24, false);
+        //读取屏幕像素信息并存储为纹理数据  
+        mTexture.ReadPixels(mRect, 0, 0);
+        mTexture.Apply();
+        //将图片信息编码为字节信息  
+        byte[] bytes = mTexture.EncodeToPNG();
+        //保存  
+        System.IO.File.WriteAllBytes(mFileName, bytes);
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Rect rect = new Rect(200f, 200f, 200f, 200f);
+            StartCoroutine(CaptureByRect(rect, Application.dataPath + " Time.time" + ".png"));
+            ScreenCapture.CaptureScreenshot(Application.dataPath + Time.time + "Shot.png");
+            Debug.Log("Shot");
+        }
+    }
 }
