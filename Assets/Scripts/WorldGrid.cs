@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine.Utility;
+using DG.Tweening;
 
 public enum Direction
 {
@@ -30,8 +31,7 @@ public class WorldGrid : MonoBehaviour
 
     //JigsawMode
     public bool jigsawMode;
-    public Cinemachine.CinemachineVirtualCamera vcamJigsaw;
-    public Cinemachine.CinemachineVirtualCamera vcamPlayer;
+    public List<CanvasGroup> UIJigsaw = new List<CanvasGroup>();
 
     private void Awake()
     {
@@ -62,30 +62,22 @@ public class WorldGrid : MonoBehaviour
             if (jigsawMode)
             {
                 //退出
-                vcamJigsaw.m_Priority = 10;
-                vcamPlayer.m_Priority = 100;
                 FindObjectOfType<Player>().movable = true;
-                for (int i = 0; i < horizontalCells; i++)
+                foreach(var c in UIJigsaw)
                 {
-                    for (int j = 0; j < verticalCells; j++)
-                    {
-                        if (jigsawMap[i,j]) jigsawMap[i, j].JigsawMode(false);
-                    }
+                    c.blocksRaycasts = false;
+                    DOTween.To(() => c.alpha, x => c.alpha = x, 0f, 1f);
                 }
                 jigsawMode = false;
             }
             else
             {
                 //进入
-                vcamJigsaw.m_Priority = 100;
-                vcamPlayer.m_Priority = 10;
                 FindObjectOfType<Player>().movable = false;
-                for (int i = 0; i < horizontalCells; i++)
+                foreach (var c in UIJigsaw)
                 {
-                    for (int j = 0; j < verticalCells; j++)
-                    {
-                        if (jigsawMap[i, j]) jigsawMap[i, j].JigsawMode(true);
-                    }
+                    c.blocksRaycasts = true;
+                    DOTween.To(() => c.alpha, x => c.alpha = x, 1f, 1f);
                 }
                 jigsawMode = true;
             }

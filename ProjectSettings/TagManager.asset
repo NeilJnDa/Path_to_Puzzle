@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Monster
+  - CellAnchor
+  - UICell
+  - WaitingArea
   layers:
   - Default
   - TransparentFX

@@ -590,5 +590,6 @@ MonoBehaviour:
   cellWidth: 11
   sideSize: 1
   jigsawMode: 0
-  vcamJigsaw: {fileID: 0}
-  vcamPlayer: {fileID: 0}
+  UIJigsaw:
+  - {fileID: 0}
+  - {fileID: 0}
