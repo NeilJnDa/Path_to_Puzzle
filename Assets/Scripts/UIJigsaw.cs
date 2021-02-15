@@ -18,7 +18,7 @@ public class UIJigsaw : MonoBehaviour
     void Start()
     {
         UIJigsawMap = new UICell[WorldGrid.Instance.horizontalCells, WorldGrid.Instance.verticalCells];
-        foreach(var cell in GetComponentsInChildren<UICell>())
+        foreach (var cell in GetComponentsInChildren<UICell>())
         {
             Vector2Int cellPos = PosInJigsaw(cell);
             UIJigsawMap[cellPos.x, cellPos.y] = cell;
@@ -29,7 +29,14 @@ public class UIJigsaw : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(originPos.position);
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            foreach (var cell in GetComponentsInChildren<UICell>())
+            {
+                Vector2Int cellPos = PosInJigsaw(cell);
+                Debug.Log(cell.name + " is at " + cellPos);
+            }
+        }
 
     }
     public Vector2Int PosInJigsaw(UICell cell)

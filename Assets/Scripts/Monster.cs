@@ -217,7 +217,7 @@ public class Monster : MonoBehaviour, IChildLoader
         transform.DOMove(targetPos, moveDuration);
         yield return new WaitForSeconds(0.1f);
         this.transform.gameObject.GetComponent<Animator>().Play("Death");
-        Debug.Log("Anim");
+        //Debug.Log("Anim");
         yield return new WaitForSeconds(0.1f);
         AfterDeath.Invoke();
         isMoving = false;

@@ -6,7 +6,8 @@ using DG.Tweening;
 
 public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private Transform myParent;
+    public Cell relatingCell;
+    public bool draggable = true;
     private CanvasGroup canvasGroup;
     Vector2Int lastPosInJigsaw = new Vector2Int();
     private void Awake()
@@ -15,6 +16,11 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
+        if (!draggable)
+        {
+            transform.DOShakePosition(1f,3f);
+            return;
+        }
         canvasGroup.blocksRaycasts = false;
         lastPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(this);
         if (lastPosInJigsaw.x == -1 && lastPosInJigsaw.y == -1 && WorldGrid.Instance.jigsawMode) //从等候区出发且拼图UI界面
@@ -26,11 +32,13 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
+        if (!draggable) return;
         SmoothMoveTo(eventData.position);
     }
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
+        if (!draggable) return;
         //做一次UGUI的raycast，去寻找是否在waiting area内；
         bool targetInWaitingArea = false;
         List<RaycastResult> list = new List<RaycastResult>();
@@ -61,18 +69,28 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 UIJigsaw.Instance.UIJigsawMap[anchor.cellPosInWorld.x, anchor.cellPosInWorld.y] = this;
                 this.transform.SetParent(UIJigsaw.Instance.transform);
             }
-            else if (target.gameObject.tag == "UICell")
+            else if (target.gameObject.tag == "UICell" )
             {
-                //目标索引
-                Vector2Int targetPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(target.gameObject.GetComponent<UICell>());
-                //移动
-                SmoothMoveTo(target.gameObject.transform.position);
-                target.gameObject.GetComponent<UICell>().SmoothMoveTo(UIJigsaw.Instance.waitingArea.position);
-                //更新UIJigsawMap
-                UIJigsaw.Instance.UIJigsawMap[targetPosInJigsaw.x, targetPosInJigsaw.y] = this;
-                //更新父物体
-                this.transform.SetParent(UIJigsaw.Instance.transform);
-                target.gameObject.transform.SetParent(UIJigsaw.Instance.waitingArea);
+                if (target.gameObject.GetComponent<UICell>().draggable)
+                {
+                    //目标索引
+                    Vector2Int targetPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(target.gameObject.GetComponent<UICell>());
+                    //移动
+                    SmoothMoveTo(target.gameObject.transform.position);
+                    target.gameObject.GetComponent<UICell>().SmoothMoveTo(UIJigsaw.Instance.waitingArea.position);
+                    //更新UIJigsawMap
+                    UIJigsaw.Instance.UIJigsawMap[targetPosInJigsaw.x, targetPosInJigsaw.y] = this;
+                    //更新父物体
+                    this.transform.SetParent(UIJigsaw.Instance.transform);
+                    target.gameObject.transform.SetParent(UIJigsaw.Instance.waitingArea);
+                }
+                else
+                {
+                    target.gameObject.transform.DOShakePosition(1f, 3f);
+                    SmoothMoveTo(UIJigsaw.Instance.waitingArea.position);
+                    this.transform.SetParent(UIJigsaw.Instance.waitingArea);
+                }
+
             }
             else
             {
@@ -100,14 +118,23 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             }
             else if (target.gameObject.tag == "UICell")
             {
-                //目标索引
-                Vector2Int targetPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(target.gameObject.GetComponent<UICell>());
-                //移动
-                SmoothMoveTo(target.gameObject.transform.position);
-                target.gameObject.GetComponent<UICell>().SmoothMoveTo(UIJigsaw.Instance.PosInWorld(lastPosInJigsaw));
-                //更新UIJigsawMap
-                UIJigsaw.Instance.UIJigsawMap[targetPosInJigsaw.x, targetPosInJigsaw.y] = this;
-                UIJigsaw.Instance.UIJigsawMap[lastPosInJigsaw.x, lastPosInJigsaw.y] = target.gameObject.GetComponent<UICell>();
+                if (target.gameObject.GetComponent<UICell>().draggable)
+                {
+                    //目标索引
+                    Vector2Int targetPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(target.gameObject.GetComponent<UICell>());
+                    //移动
+                    SmoothMoveTo(target.gameObject.transform.position);
+                    target.gameObject.GetComponent<UICell>().SmoothMoveTo(UIJigsaw.Instance.PosInWorld(lastPosInJigsaw));
+                    //更新UIJigsawMap
+                    UIJigsaw.Instance.UIJigsawMap[targetPosInJigsaw.x, targetPosInJigsaw.y] = this;
+                    UIJigsaw.Instance.UIJigsawMap[lastPosInJigsaw.x, lastPosInJigsaw.y] = target.gameObject.GetComponent<UICell>();
+                }
+                else
+                {
+                    target.gameObject.transform.DOShakePosition(1f, 3f);
+                    SmoothMoveTo(UIJigsaw.Instance.PosInWorld(lastPosInJigsaw));
+                }
+
             }
 
             else
