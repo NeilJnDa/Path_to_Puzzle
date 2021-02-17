@@ -21,7 +21,8 @@ public class UIJigsaw : MonoBehaviour
         foreach (var cell in GetComponentsInChildren<UICell>())
         {
             Vector2Int cellPos = PosInJigsaw(cell);
-            UIJigsawMap[cellPos.x, cellPos.y] = cell;
+            if (cellPos.x >= 0 && cellPos.x <= WorldGrid.Instance.horizontalCells && cellPos.y >= 0 && cellPos.y <= WorldGrid.Instance.verticalCells)
+                UIJigsawMap[cellPos.x, cellPos.y] = cell;
             Debug.Log(cell.name + " is at " + cellPos);
         }
     }

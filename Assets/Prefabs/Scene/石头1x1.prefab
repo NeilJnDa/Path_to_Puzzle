@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 738380450334832024}
   - component: {fileID: 2077573403959476687}
   - component: {fileID: 5022103532191781242}
+  - component: {fileID: 385670055914189248}
   m_Layer: 0
   m_Name: "\u77F3\u59341x1"
   m_TagString: Untagged
@@ -96,3 +97,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGroundTile: 0
   type: 5
+--- !u!114 &385670055914189248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5157228911162895855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5bd79c6afab554f871949389129117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

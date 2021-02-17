@@ -32,6 +32,8 @@ public class Cell : MonoBehaviour
     [HideInInspector]
     public int[,] cellGrid;    //是否有地板：1有，0无
     public GridObjectType[,] groundInfo;  //地板上有什么东西
+    [HideInInspector]
+    public GameObject [,] cellObjects; //东西的索引
     //更合理的方案应该是，i,j-格子物体索引-groundInfo；这样可以方便通过i，j找到对应的物体
 
     private int length;
@@ -47,12 +49,14 @@ public class Cell : MonoBehaviour
         width = 11;
         cellGrid = new int[length, width];
         groundInfo = new GridObjectType[length, width];
+        cellObjects = new GameObject[length, width];
         for (int i = 0; i < length; i++)
         {
             for (int j = 0; j < width; j++)
             {
                 cellGrid[i, j] = 0;
                 groundInfo[i, j] = GridObjectType.NotUsed;
+                cellObjects[i, j] = null;
             }
         }
     }
@@ -65,10 +69,14 @@ public class Cell : MonoBehaviour
             if (child.isGroundTile)
             {
                 cellGrid[pos.x, pos.y] = 1;
-                groundInfo[pos.x, pos.y] = GridObjectType.None;
+                if (groundInfo[pos.x, pos.y] == GridObjectType.NotUsed) groundInfo[pos.x, pos.y] = GridObjectType.None;
                 continue;
             }
-            else groundInfo[pos.x, pos.y] = child.type;
+            else
+            {
+                groundInfo[pos.x, pos.y] = child.type;
+                cellObjects[pos.x, pos.y] = child.gameObject;
+            }
         }
     }
 

@@ -13,7 +13,7 @@ public class FaceToCamera : MonoBehaviour
     {Direction.up, Vector3.forward},
     {Direction.down , Vector3.back}
     };
-    public Vector3 basePos = new Vector3();
+    Vector3 basePos = new Vector3();
     // Start is called before the first frame update
     void Start()
     {
@@ -22,18 +22,4 @@ public class FaceToCamera : MonoBehaviour
         transform.RotateAround(basePos, Vector3.right, Camera.main.transform.rotation.eulerAngles.x - transform.rotation.eulerAngles.x);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-        //Debug.Log(basePos);
-        if(Camera.main.transform.rotation.eulerAngles.x - transform.rotation.eulerAngles.x >= 1f) 
-            transform.RotateAround(basePos, Vector3.right, 2f);
-        else if(Camera.main.transform.rotation.eulerAngles.x - transform.rotation.eulerAngles.x <= -1f)
-            transform.RotateAround(basePos, Vector3.right, -2f);
-    }
-    public void updateBasePos(Direction direction)
-    {
-        basePos += DirectionVector[direction];
-    }
 }

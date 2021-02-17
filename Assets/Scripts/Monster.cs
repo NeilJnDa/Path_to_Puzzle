@@ -4,7 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
 
-public class Monster : MonoBehaviour, IChildLoader
+public class UnityEventMonster : UnityEvent<Monster> { }
+public class Monster : MonoBehaviour
 {
 
     CellChild cellChild;
@@ -17,7 +18,7 @@ public class Monster : MonoBehaviour, IChildLoader
     public Vector3 targetPos = new Vector3();
     public Direction faceTo;
 
-    public UnityEvent AfterDeath = new UnityEvent();
+    public UnityEventMonster AfterDeath = new UnityEventMonster();
     void Start()
     {
         try
@@ -35,13 +36,12 @@ public class Monster : MonoBehaviour, IChildLoader
     // Update is called once per frame
     void Update()
     {
-        
     }
-    public void MoveCheck()
+    public bool MoveCheck()
     {
         //TODO:隔壁Cell的也要判断
         Player player = FindObjectOfType<Player>();
-        if (!player) { Debug.LogError("No Player in" + this.name + "'s Cell"); return; }
+        if (!player) { Debug.LogError("No Player in" + this.name + "'s Cell"); return false; }
         Vector2Int playerPos =  player.TargetPosInCell();
         Vector2Int pos = this.PosInCell();
         int distance = int.MaxValue;
@@ -49,25 +49,26 @@ public class Monster : MonoBehaviour, IChildLoader
         if(playerPos.x == pos.x)
         {
             distance = playerPos.y - pos.y;
-            if (distance > 0 && player.faceTo == Direction.down) Move(Direction.down);
-            else if (distance == 1) Move(Direction.down);
-            else if (distance >= 3) Move(Direction.up);
+            if (distance > 0 && player.faceTo == Direction.down) return Move(Direction.down);
+            else if (distance == 1) return Move(Direction.down);
+            else if (distance >= 3) return Move(Direction.up);
             //距离为2时不动
-            else if (distance < 0 && player.faceTo == Direction.up) Move(Direction.up);
-            else if (distance == -1) Move(Direction.up);
-            else if (distance <= -3) Move(Direction.down);
+            else if (distance < 0 && player.faceTo == Direction.up) return Move(Direction.up);
+            else if (distance == -1) return Move(Direction.up);
+            else if (distance <= -3) return Move(Direction.down);
         }
         else if(playerPos.y == pos.y)
         {
             distance = playerPos.x - pos.x;
-            if (distance > 0 && player.faceTo == Direction.left) Move(Direction.left);
-            else if (distance == 1) Move(Direction.left);
-            else if (distance >= 3) Move(Direction.right);
+            if (distance > 0 && player.faceTo == Direction.left) return Move(Direction.left);
+            else if (distance == 1) return Move(Direction.left);
+            else if (distance >= 3) return Move(Direction.right);
             //距离为2时不动
-            else if (distance < 0 && player.faceTo == Direction.right) Move(Direction.right);
-            else if (distance == -1) Move(Direction.right);
-            else if (distance <= -3) Move(Direction.left);
-        } 
+            else if (distance < 0 && player.faceTo == Direction.right) return Move(Direction.right);
+            else if (distance == -1) return Move(Direction.right);
+            else if (distance <= -3) return Move(Direction.left);
+        }
+        return false;
     }
     public Vector2Int PosInCell()
     {
@@ -77,12 +78,12 @@ public class Monster : MonoBehaviour, IChildLoader
         return pos;
     }
 
-    private void Move(Direction direction)
+    private bool Move(Direction direction)
     {
         if (isMoving || !movable)
         {
             //TODO:连续移动
-            return;
+            return false;
         }
         else
         {
@@ -93,13 +94,19 @@ public class Monster : MonoBehaviour, IChildLoader
             catch
             {
                 Debug.LogError(this.gameObject.name + "has no father Cell");
-                return;
+                return false;
             }
-            if (CanMoveThis(cellChild, direction)) StartCoroutine(MoveProcess(direction));
+            if (CanMoveThis(cellChild, direction))
+            {
+                Debug.Log(this.name + " Move To " + direction);
+                StartCoroutine(MoveProcess(direction));
+                return true;
+            }
             else
             {
                 //Debug.Log(this.gameObject.name + "无法移动或进入死亡过程"); 
             }
+            return false;
         }
     }
 
@@ -145,7 +152,7 @@ public class Monster : MonoBehaviour, IChildLoader
             Debug.Log(child.name + "跨越Cell时目标Cell不存在，相邻没有Cell");
             return false;
         }
-        if (targetCell.cellGrid[targetPos.x, targetPos.y] == 0)
+        else if (targetCell.cellGrid[targetPos.x, targetPos.y] == 0)
         {
             Debug.Log(targetCell.name + "的" + targetPos + "没有格子");
             return false;   //不存在格子
@@ -156,7 +163,11 @@ public class Monster : MonoBehaviour, IChildLoader
             {
                 //跨越Cell
                 fatherCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                fatherCell.cellObjects[originalPos.x, originalPos.y] = this.gameObject;
+
                 targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                targetCell.cellObjects[targetPos.x, targetPos.y] = this.gameObject;
+
                 fatherCell = targetCell;
                 child.transform.parent = targetCell.gameObject.transform;
                 return true;
@@ -165,7 +176,10 @@ public class Monster : MonoBehaviour, IChildLoader
             {
                 //不跨越Cell
                 targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                targetCell.cellObjects[originalPos.x, originalPos.y] = null;
+
                 targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                targetCell.cellObjects[targetPos.x, targetPos.y] = child.gameObject;
                 return true;
             }
         }
@@ -173,15 +187,41 @@ public class Monster : MonoBehaviour, IChildLoader
         else if (child.type == GridObjectType.Enemy && targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.Abyss)
         {
             targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+            targetCell.cellObjects[originalPos.x, originalPos.y] = null;
             child.GetComponent<Monster>().Death(direction);
             return false;
+        }
+        else if(child.type == GridObjectType.Enemy && targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.Enemy)
+        {
+            //TODO: 也许没有用的判定
+            Debug.Log(this.name + "判定移动且目标格有另一个Monster");
+            if (targetCell.cellObjects[targetPos.x, targetPos.y].GetComponent<Monster>().MoveCheck())
+            {
+                targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                targetCell.cellObjects[originalPos.x, originalPos.y] = null;
+
+                targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                targetCell.cellObjects[targetPos.x, targetPos.y] = child.gameObject;
+
+                
+                //var list = FindObjectOfType<Player>().sortedMonsters;
+                //list.Remove(FindObjectOfType<Player>().sortedMonsters.Find(s => s.Key.Equals(this)));
+                return true;
+            }
+            else
+            {
+                //var list = FindObjectOfType<Player>().sortedMonsters;
+                //list.Remove(FindObjectOfType<Player>().sortedMonsters.Find(s => s.Key.Equals(this)));
+                return false;
+            }
+
         }
         Debug.Log(targetCell.name + "的" + targetPos + "格有" + targetCell.groundInfo[targetPos.x, targetPos.y]);
         return false;   //目标格子有东西
     }
     IEnumerator MoveProcess(Direction direction)
     {
-        Debug.Log("Monster Move");
+        //Debug.Log("Monster Move");
         isMoving = true;
         targetPos = transform.position;
         faceTo = direction;
@@ -219,7 +259,7 @@ public class Monster : MonoBehaviour, IChildLoader
         this.transform.gameObject.GetComponent<Animator>().Play("Death");
         //Debug.Log("Anim");
         yield return new WaitForSeconds(0.1f);
-        AfterDeath.Invoke();
+        AfterDeath.Invoke(this);
         isMoving = false;
     }
     public void DestroyThis()

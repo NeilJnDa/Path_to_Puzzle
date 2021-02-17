@@ -14,6 +14,7 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     {
         canvasGroup = this.gameObject.AddComponent<CanvasGroup>();
     }
+    #region 拖动
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
     {
         if (!draggable)
@@ -146,6 +147,7 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         lastPosInJigsaw = Vector2Int.zero;
 
     }
+    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -160,5 +162,23 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     public void SmoothMoveTo(Vector3 target)
     {
         transform.DOMove(target, 0.5f);
+    }
+    public void GetCellAnim(Vector3 startPos)
+    {
+        StartCoroutine(CellAppearAnim(startPos));
+
+    }
+    IEnumerator CellAppearAnim(Vector3 startPos)
+    { 
+        Debug.Log("Get " + this.name);
+        this.transform.SetParent(UIJigsaw.Instance.waitingArea);
+        transform.position = startPos;
+        canvasGroup.alpha = 0f;
+
+        DOTween.To(() => canvasGroup.alpha, x => canvasGroup.alpha = x, 1f, 1f);
+        Vector3 endPos = transform.position + Vector3.up * 200;
+        transform.DOMove(endPos, 1f);
+        yield return new WaitForSeconds(1f);
+        transform.DOMove(UIJigsaw.Instance.waitingArea.position, 2f);
     }
 }

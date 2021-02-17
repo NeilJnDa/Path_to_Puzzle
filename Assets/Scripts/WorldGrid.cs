@@ -62,7 +62,7 @@ public class WorldGrid : MonoBehaviour
         {
             if (jigsawMode)
             {
-                //退出
+                //退出jigsawMode
                 FindObjectOfType<Player>().movable = true;
                 foreach (var c in UIJigsawMapCanvasGroups)
                 {
@@ -74,7 +74,7 @@ public class WorldGrid : MonoBehaviour
             }
             else
             {
-                //进入
+                //进入jigsawMode
                 FindObjectOfType<Player>().movable = false;
                 foreach (var c in UIJigsawMapCanvasGroups)
                 {
@@ -89,6 +89,7 @@ public class WorldGrid : MonoBehaviour
 
     private void CellPosUpdate()
     {
+        //对UIJigsawMap中的信息复制
         for (int i = 0; i < horizontalCells; i++)
         {
             for (int j = 0; j < verticalCells; j++)
@@ -97,19 +98,20 @@ public class WorldGrid : MonoBehaviour
                 else
                 {
                     jigsawMap[i, j] = UIJigsaw.Instance.UIJigsawMap[i, j].relatingCell;
-                    UIJigsaw.Instance.UIJigsawMap[i, j].relatingCell.cellPosInGrid = new Vector2Int(i, j);
+                    jigsawMap[i, j].cellPosInGrid = new Vector2Int(i, j);
                 }
             }
         }
-                foreach (var uiCell in UIJigsaw.Instance.waitingArea.gameObject.GetComponentsInChildren<UICell>())
+        //UI等候区的信息
+        foreach (var uiCell in UIJigsaw.Instance.waitingArea.gameObject.GetComponentsInChildren<UICell>())
         {
-            Vector2Int newPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(uiCell);
+            Vector2Int newPosInJigsaw = UIJigsaw.Instance.PosInJigsaw(uiCell);  //身处等候区必定返回（-1 -1）
             uiCell.relatingCell.cellPosInGrid = new Vector2Int(-1, -1);
             uiCell.relatingCell.SmoothMoveTo(PosInWorld(newPosInJigsaw));
         }
         foreach (var cell in jigsawMap)
         {
-            cell.SmoothMoveTo(PosInWorld(cell.cellPosInGrid));
+            if(cell) cell.SmoothMoveTo(PosInWorld(cell.cellPosInGrid));
         }
 
         //foreach (var uiCell in UIJigsaw.Instance.GetComponentsInChildren<UICell>())
@@ -169,7 +171,7 @@ public class WorldGrid : MonoBehaviour
         else if (targetPos.x == -1 && targetPos.y == -1)
         {
             jigsawMap[cell.cellPosInGrid.x, cell.cellPosInGrid.y] = null;
-            cell.cellPosInGrid = targetPos; 
+            cell.cellPosInGrid = targetPos;
         }
 
     }

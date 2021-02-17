@@ -126,7 +126,6 @@ MonoBehaviour:
   anchorLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  draggable: 1
 --- !u!65 &2515283977682603896
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -151,6 +150,7 @@ GameObject:
   - component: {fileID: 404409058016854557}
   - component: {fileID: 6170744597751746753}
   - component: {fileID: 2570069120450005789}
+  - component: {fileID: 5905720975814044322}
   m_Layer: 0
   m_Name: "\u5893\u7891"
   m_TagString: Untagged
@@ -236,6 +236,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGroundTile: 0
   type: 5
+--- !u!114 &5905720975814044322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4767625537986010380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5bd79c6afab554f871949389129117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &131560449767058941
 PrefabInstance:
   m_ObjectHideFlags: 0

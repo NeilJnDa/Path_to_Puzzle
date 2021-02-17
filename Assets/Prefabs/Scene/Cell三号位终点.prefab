@@ -31,7 +31,6 @@ Transform:
   m_Children:
   - {fileID: 270867383941486697}
   - {fileID: 270867384080636279}
-  - {fileID: 2251564473844719427}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -52,7 +51,6 @@ MonoBehaviour:
   anchorLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  draggable: 1
 --- !u!65 &270867382682474449
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -137,6 +135,7 @@ Transform:
   - {fileID: 4665053728630026060}
   - {fileID: 7212523117398155321}
   - {fileID: 1073000412018219413}
+  - {fileID: 2251564473844719427}
   m_Father: {fileID: 270867382682474447}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -445,7 +444,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 270867382682474447}
+    m_TransformParent: {fileID: 270867384080636279}
     m_Modifications:
     - target: {fileID: 3566934931062913940, guid: eda010386b2eb36489c9463cdf2ca848,
         type: 3}
@@ -460,7 +459,7 @@ PrefabInstance:
     - target: {fileID: 3566934931062913940, guid: eda010386b2eb36489c9463cdf2ca848,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3566934931062913940, guid: eda010386b2eb36489c9463cdf2ca848,
         type: 3}
@@ -485,7 +484,7 @@ PrefabInstance:
     - target: {fileID: 3566934931062913940, guid: eda010386b2eb36489c9463cdf2ca848,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 3566934931062913940, guid: eda010386b2eb36489c9463cdf2ca848,
         type: 3}

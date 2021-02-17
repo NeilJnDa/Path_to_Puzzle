@@ -14,12 +14,14 @@ public class Player : MonoBehaviour
     int inputX;
     int inputY;
     bool isMoving = false;
+    [HideInInspector]
     public Cell fatherCell;
     CellChild cellChild;
 
     [HideInInspector]
     public Vector3 targetPos = new Vector3();
     public Direction faceTo;
+    public List <KeyValuePair<Monster,float>> sortedMonsters = new List<KeyValuePair<Monster, float>>();
     // Start is called before the first frame update
     void Start()
     {
@@ -124,7 +126,11 @@ public class Player : MonoBehaviour
             {
                 //跨越Cell
                 fatherCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                fatherCell.cellObjects[originalPos.x, originalPos.y] = null;
+
                 targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                targetCell.cellObjects[targetPos.x, targetPos.y] = child.gameObject;
+
                 fatherCell = targetCell;
                 child.transform.parent = targetCell.gameObject.transform;
                 return true;
@@ -133,7 +139,11 @@ public class Player : MonoBehaviour
             {
                 //不跨越Cell
                 targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
+                targetCell.cellObjects[originalPos.x, originalPos.y] = null;
+
                 targetCell.groundInfo[targetPos.x, targetPos.y] = child.type;
+                targetCell.cellObjects[targetPos.x, targetPos.y] = child.gameObject;
+
                 return true;
             }
         }
@@ -178,13 +188,13 @@ public class Player : MonoBehaviour
             else if (distance <= WorldGrid.Instance.sideSize * 3f) monsters.Add(child, distance);
         }
 
-        //从小到大排序
-        var sortedMonsters = (from pair in monsters orderby pair.Value select pair).ToList();
+        //从小到大排序，近的先判定
+        sortedMonsters = (from pair in monsters orderby pair.Value select pair).ToList();
 
         //通知所有子Enemy去检测是否需要移动。
         foreach (var child in sortedMonsters)
         {
-            Debug.Log(child.Key.name);
+            //Debug.Log(child.Key.name);
             child.Key.MoveCheck();
         }
     }
@@ -201,5 +211,9 @@ public class Player : MonoBehaviour
         pos.x = (int)((targetPos.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
         pos.y = (int)((targetPos.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
         return pos;
+    }
+    public void SetMovable(bool b)
+    {
+        movable = b;
     }
 }

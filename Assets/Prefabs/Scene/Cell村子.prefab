@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7306306403042442626}
   - component: {fileID: 3581520940541201443}
   - component: {fileID: 1480139745230537215}
+  - component: {fileID: 3490908074094511660}
   m_Layer: 0
   m_Name: "\u5893\u7891"
   m_TagString: Untagged
@@ -70,7 +71,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: ef8955145b08c6546b1b31e580192029, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -96,6 +97,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isGroundTile: 0
   type: 5
+--- !u!114 &3490908074094511660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565056447367857609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef5bd79c6afab554f871949389129117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5693529935394062399
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,7 +234,6 @@ MonoBehaviour:
   anchorLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  draggable: 1
 --- !u!65 &5693529937092120216
 BoxCollider:
   m_ObjectHideFlags: 0
