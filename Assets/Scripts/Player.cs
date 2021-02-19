@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
     CellChild cellChild;
 
     [HideInInspector]
+    public UnityEvent OnPlayerMoveLate = new UnityEvent();
+    [HideInInspector]
     public Vector3 targetPos = new Vector3();
     public Direction faceTo;
     public List <KeyValuePair<Monster,float>> sortedMonsters = new List<KeyValuePair<Monster, float>>();
@@ -166,6 +168,7 @@ public class Player : MonoBehaviour
         transform.DOMove(targetPos, moveDuration);
         yield return new WaitForSeconds(LateWaitingDuration);
         LatePlayerMove();
+        OnPlayerMoveLate.Invoke();
         yield return new WaitForSeconds(moveDuration - LateWaitingDuration);
         isMoving = false;
     }
@@ -174,8 +177,6 @@ public class Player : MonoBehaviour
     /// </summary>
     public void LatePlayerMove()
     { 
-        //更合理的方案应该是，i,j-格子物体索引-groundInfo；这样可以方便通过i，j找到对应的物体
-        //但是现在先用不经济的方式实现，如果继续做再重写代码。
 
         Dictionary<Monster, float> monsters = new Dictionary<Monster, float>();
         foreach (var child in FindObjectsOfType<Monster>())

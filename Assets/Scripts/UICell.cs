@@ -165,8 +165,13 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
     public void GetCellAnim(Vector3 startPos)
     {
+        //从已转化为UI空间的Vector3指定位置
         StartCoroutine(CellAppearAnim(startPos));
-
+    }
+    public void GetCellAnim(Transform t)
+    {
+        //从时间空间的transform指定位置
+        StartCoroutine(CellAppearAnim(Camera.main.WorldToScreenPoint(t.position)));
     }
     IEnumerator CellAppearAnim(Vector3 startPos)
     { 

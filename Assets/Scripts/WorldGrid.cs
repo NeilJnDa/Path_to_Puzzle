@@ -60,30 +60,34 @@ public class WorldGrid : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.M))
         {
-            if (jigsawMode)
+            SetJigsawMode(!jigsawMode);
+        }
+    }
+    public void SetJigsawMode(bool b)
+    {
+        if (b)
+        {
+            //进入jigsawMode
+            FindObjectOfType<Player>().movable = false;
+            foreach (var c in UIJigsawMapCanvasGroups)
             {
-                //退出jigsawMode
-                FindObjectOfType<Player>().movable = true;
-                foreach (var c in UIJigsawMapCanvasGroups)
-                {
-                    c.blocksRaycasts = false;
-                    DOTween.To(() => c.alpha, x => c.alpha = x, 0f, 1f);
-                }
-                jigsawMode = false;
-                CellPosUpdate();
+                c.blocksRaycasts = true;
+                DOTween.To(() => c.alpha, x => c.alpha = x, 1f, 1f);
             }
-            else
-            {
-                //进入jigsawMode
-                FindObjectOfType<Player>().movable = false;
-                foreach (var c in UIJigsawMapCanvasGroups)
-                {
-                    c.blocksRaycasts = true;
-                    DOTween.To(() => c.alpha, x => c.alpha = x, 1f, 1f);
-                }
-                jigsawMode = true;
-            }
+            jigsawMode = true;
+        }
+        else
+        {
 
+            //退出jigsawMode
+            FindObjectOfType<Player>().movable = true;
+            foreach (var c in UIJigsawMapCanvasGroups)
+            {
+                c.blocksRaycasts = false;
+                DOTween.To(() => c.alpha, x => c.alpha = x, 0f, 1f);
+            }
+            jigsawMode = false;
+            CellPosUpdate();
         }
     }
 
@@ -111,7 +115,7 @@ public class WorldGrid : MonoBehaviour
         }
         foreach (var cell in jigsawMap)
         {
-            if(cell) cell.SmoothMoveTo(PosInWorld(cell.cellPosInGrid));
+            if (cell) cell.SmoothMoveTo(PosInWorld(cell.cellPosInGrid));
         }
 
         //foreach (var uiCell in UIJigsaw.Instance.GetComponentsInChildren<UICell>())

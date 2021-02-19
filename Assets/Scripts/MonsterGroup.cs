@@ -8,7 +8,7 @@ public class MonsterGroup : MonoBehaviour
     public List<Monster> monsters = new List<Monster>();
     int monsterCount = 0;
     UnityAction<Monster> action;
-    public UnityEventMonster AfterAllMonstersDeath = new UnityEventMonster();
+    public UnityEvent AfterAllMonstersDeath = new UnityEvent();
     public UICell UICellAfterAllDeath;
     // Start is called before the first frame update
     void Start()
@@ -34,7 +34,8 @@ public class MonsterGroup : MonoBehaviour
             //转化为UI位置
             Vector3 UIPos = Camera.main.WorldToScreenPoint(lastMonster.transform.position);
             UIPos.z = 0;
-            UICellAfterAllDeath.GetCellAnim(UIPos);
+            AfterAllMonstersDeath.Invoke();
+            if(UICellAfterAllDeath) UICellAfterAllDeath.GetCellAnim(UIPos);
         }
     }
     public bool IfAllDeath()

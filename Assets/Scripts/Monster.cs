@@ -19,8 +19,11 @@ public class Monster : MonoBehaviour
     public Direction faceTo;
 
     public UnityEventMonster AfterDeath = new UnityEventMonster();
+
+    Player player;
     void Start()
     {
+        player = FindObjectOfType<Player>();
         try
         {
             //Cell内的物体必须属于Cell的子物体，方便随意拖动
@@ -40,7 +43,7 @@ public class Monster : MonoBehaviour
     public bool MoveCheck()
     {
         //TODO:隔壁Cell的也要判断
-        Player player = FindObjectOfType<Player>();
+        //Player player = FindObjectOfType<Player>();
         if (!player) { Debug.LogError("No Player in" + this.name + "'s Cell"); return false; }
         Vector2Int playerPos =  player.TargetPosInCell();
         Vector2Int pos = this.PosInCell();
