@@ -11,6 +11,7 @@ public class FlowchartTrigger : MonoBehaviour
     Player player;
     public bool interactable = true;
     public bool isNear = false;
+    public bool repeat = false;
     public SpriteRenderer bubble;
     // Start is called before the first frame update
     void Start()
@@ -20,7 +21,11 @@ public class FlowchartTrigger : MonoBehaviour
         player.OnPlayerMoveLate.AddListener(action);
         CheckPlayerNear();
     }
-
+    public IEnumerator ShakePosition(float duration, float strength)
+    {
+        transform.DOShakePosition(duration, strength);
+        yield return new WaitForSeconds(duration);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -42,19 +47,30 @@ public class FlowchartTrigger : MonoBehaviour
     {
         interactable = b;
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void CheckPlayerNear()
     {
         if (interactable)
         {
-            isNear = true;
+            Vector2Int playerPos = player.TargetPosInCell();
+            Vector2Int pos = transform.parent.GetComponent<Cell>().PosInCell(transform);
+            if (Vector2Int.Distance(playerPos, pos) <= 1f)
+            {
+                isNear = true;
+                try
+                {
+                    GetComponent<Flowchart>().ExecuteBlock("Start");
+                    SetBubble(false);
+                }
+                catch
+                {
+                    Debug.LogError(this.gameObject.name + " has no block named Start");
+                }
+                if(!repeat)interactable = false;
+
+            }
+            else isNear = false;
         }
-    }
-    private void CheckPlayerNear()
-    {
-        Vector2Int playerPos = player.TargetPosInCell();
-        Vector2Int pos = transform.parent.GetComponent<Cell>().PosInCell(transform);
-        if (Vector2Int.Distance(playerPos, pos) <= 1f) isNear = true;
-        else isNear = false;
+
     }
     public void SetBubble(bool b)
     {
