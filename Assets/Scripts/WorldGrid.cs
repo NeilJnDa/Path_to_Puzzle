@@ -132,8 +132,9 @@ public class WorldGrid : MonoBehaviour
         //}
     }
 
-    public void SetCellPos(Cell cell, Vector2Int targetPos)
+    public void RegisterCellPos(Cell cell)
     {
+        Vector2Int targetPos = cell.cellPosInGrid;
         #region Abandoned Cell交换的判定
         //if (targetPos.x >= 0 && targetPos.x < horizontalCells && targetPos.y >= 0 && targetPos.y < verticalCells)
         //{
@@ -170,12 +171,9 @@ public class WorldGrid : MonoBehaviour
         if (targetPos.x >= 0 && targetPos.x < horizontalCells && targetPos.y >= 0 && targetPos.y < verticalCells)
         {
             jigsawMap[targetPos.x, targetPos.y] = cell;
-            cell.cellPosInGrid = targetPos;
         }
         else if (targetPos.x == -1 && targetPos.y == -1)
         {
-            jigsawMap[cell.cellPosInGrid.x, cell.cellPosInGrid.y] = null;
-            cell.cellPosInGrid = targetPos;
         }
 
     }

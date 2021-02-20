@@ -116,6 +116,7 @@ public class UICell : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
                 SmoothMoveTo(target.gameObject.transform.position);
                 var anchor = target.gameObject.GetComponent<CellAnchor>();
                 UIJigsaw.Instance.UIJigsawMap[anchor.cellPosInWorld.x, anchor.cellPosInWorld.y] = this;
+                UIJigsaw.Instance.UIJigsawMap[lastPosInJigsaw.x, lastPosInJigsaw.y] = null;
             }
             else if (target.gameObject.tag == "UICell")
             {

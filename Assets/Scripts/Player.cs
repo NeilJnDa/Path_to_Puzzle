@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     [HideInInspector]
     public UnityEvent OnPlayerMoveLate = new UnityEvent();
     [HideInInspector]
-    public Vector3 targetPos = new Vector3();
+    public Vector3 targetPosNoOffset = new Vector3();
     public Direction faceTo;
     public List <KeyValuePair<Monster,float>> sortedMonsters = new List<KeyValuePair<Monster, float>>();
     // Start is called before the first frame update
@@ -156,16 +156,16 @@ public class Player : MonoBehaviour
     IEnumerator MoveProcess(Direction direction)
     {
         isMoving = true;
-        targetPos = transform.position;
+        targetPosNoOffset = transform.position;
         faceTo = direction;
         switch (direction)
         {
-            case Direction.right: targetPos.x += WorldGrid.Instance.sideSize; break;
-            case Direction.left: targetPos.x -= WorldGrid.Instance.sideSize; break;
-            case Direction.up: targetPos.z += WorldGrid.Instance.sideSize; break;
-            case Direction.down: targetPos.z -= WorldGrid.Instance.sideSize; break;
+            case Direction.right: targetPosNoOffset.x += WorldGrid.Instance.sideSize; break;
+            case Direction.left: targetPosNoOffset.x -= WorldGrid.Instance.sideSize; break;
+            case Direction.up: targetPosNoOffset.z += WorldGrid.Instance.sideSize; break;
+            case Direction.down: targetPosNoOffset.z -= WorldGrid.Instance.sideSize; break;
         }
-        transform.DOMove(targetPos, moveDuration);
+        transform.DOMove(targetPosNoOffset, moveDuration);
         yield return new WaitForSeconds(LateWaitingDuration);
         LatePlayerMove();
         OnPlayerMoveLate.Invoke();
@@ -188,7 +188,7 @@ public class Player : MonoBehaviour
             //世界距离3以内的也要通知移动检测，因为有可能跨cell
             else if (distance <= WorldGrid.Instance.sideSize * 3f) monsters.Add(child, distance);
         }
-
+        sortedMonsters.Clear();
         //从小到大排序，近的先判定
         sortedMonsters = (from pair in monsters orderby pair.Value select pair).ToList();
 
@@ -196,21 +196,18 @@ public class Player : MonoBehaviour
         foreach (var child in sortedMonsters)
         {
             //Debug.Log(child.Key.name);
-            child.Key.MoveCheck();
+            //用if语句后continue，保证Movecheck执行一个后才执行下一个，防止monster被monster阻挡时调用了下一个，而此处同时调用下一个。
+            //猜测foreach中的内容是并行执行
+            if (child.Key.MoveCheck()) continue;
+            else continue;
         }
-    }
-    public Vector2Int PosInCell()
-    {
-        Vector2Int pos = new Vector2Int();
-        pos.x = (int)((transform.position.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
-        pos.y = (int)((transform.position.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
-        return pos;
     }
     public Vector2Int TargetPosInCell()
     {
         Vector2Int pos = new Vector2Int();
-        pos.x = (int)((targetPos.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
-        pos.y = (int)((targetPos.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
+        Vector3 offset = GetComponent<FaceToCamera>().posOffset;
+        pos.x = (int)((targetPosNoOffset.x - offset.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
+        pos.y = (int)((targetPosNoOffset.z - offset.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
         return pos;
     }
     public void SetMovable(bool b)

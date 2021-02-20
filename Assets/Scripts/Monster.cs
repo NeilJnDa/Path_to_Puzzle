@@ -42,11 +42,10 @@ public class Monster : MonoBehaviour
     }
     public bool MoveCheck()
     {
-        //TODO:隔壁Cell的也要判断
         //Player player = FindObjectOfType<Player>();
         if (!player) { Debug.LogError("No Player in" + this.name + "'s Cell"); return false; }
         Vector2Int playerPos =  player.TargetPosInCell();
-        Vector2Int pos = this.PosInCell();
+        Vector2Int pos = this.fatherCell.PosInCell(this.transform);
         int distance = int.MaxValue;
         //Debug.Log(playerPos + " " + pos);
         if(playerPos.x == pos.x)
@@ -73,13 +72,13 @@ public class Monster : MonoBehaviour
         }
         return false;
     }
-    public Vector2Int PosInCell()
-    {
-        Vector2Int pos = new Vector2Int();
-        pos.x = (int)((transform.position.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
-        pos.y = (int)((transform.position.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
-        return pos;
-    }
+    //public Vector2Int PosInCell()
+    //{
+    //    Vector2Int pos = new Vector2Int();
+    //    pos.x = (int)((transform.position.x - fatherCell.origin.position.x) / WorldGrid.Instance.sideSize);
+    //    pos.y = (int)((transform.position.z - fatherCell.origin.position.z) / WorldGrid.Instance.sideSize);
+    //    return pos;
+    //}
 
     private bool Move(Direction direction)
     {
@@ -196,9 +195,9 @@ public class Monster : MonoBehaviour
         }
         else if(child.type == GridObjectType.Enemy && targetCell.groundInfo[targetPos.x, targetPos.y] == GridObjectType.Enemy)
         {
-            //TODO: 也许没有用的判定
+            //TODO: 有时候，monster位置会登记错误
             Debug.Log(this.name + "判定移动且目标格有另一个Monster");
-            if (targetCell.cellObjects[targetPos.x, targetPos.y].GetComponent<Monster>().MoveCheck())
+            if (targetCell.cellObjects[targetPos.x, targetPos.y] != this.gameObject  && targetCell.cellObjects[targetPos.x, targetPos.y].GetComponent<Monster>().MoveCheck())
             {
                 targetCell.groundInfo[originalPos.x, originalPos.y] = GridObjectType.None;
                 targetCell.cellObjects[originalPos.x, originalPos.y] = null;

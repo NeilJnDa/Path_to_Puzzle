@@ -62,7 +62,7 @@ public class Cell : MonoBehaviour
     }
     void Start()
     {
-        WorldGrid.Instance.SetCellPos(this, cellPosInGrid);    //在世界中登记cell位置
+        WorldGrid.Instance.RegisterCellPos(this);  //在世界中登记cell位置
         foreach (var child in transform.GetComponentsInChildren<CellChild>())
         {
             Vector2Int pos = PosInCell(child.transform);
@@ -82,9 +82,17 @@ public class Cell : MonoBehaviour
 
     public Vector2Int PosInCell(Transform target)
     {
+        Vector3 originalPos = target.position;
+        //若有FaceToCamera的旋转，则减去偏移量
+        var temp = target.gameObject.GetComponent<FaceToCamera>();
+        if (temp)
+        {
+            originalPos -= temp.posOffset;
+            Debug.Log(target.gameObject.name + "减去偏移后位置为：" + originalPos);
+        }
         Vector2Int pos = new Vector2Int();
-        pos.x = (int)((target.position.x - origin.position.x) / WorldGrid.Instance.sideSize);
-        pos.y = (int)((target.position.z - origin.position.z) / WorldGrid.Instance.sideSize);
+        pos.x = (int)((originalPos.x - origin.position.x) / WorldGrid.Instance.sideSize);
+        pos.y = (int)((originalPos.z - origin.position.z) / WorldGrid.Instance.sideSize);
         return pos;
     }
 
