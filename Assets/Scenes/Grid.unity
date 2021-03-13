@@ -1284,7 +1284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61dddfdc5e0e44ca298d8f46f7f5a915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedFlowchart: {fileID: 1741639082}
+  selectedFlowchart: {fileID: 1094047377}
 --- !u!4 &1083473927
 Transform:
   m_ObjectHideFlags: 1
@@ -1299,6 +1299,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1094047377 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6454413673813788656, guid: 64dfa596f8362b64ba0e228c91328284,
+    type: 3}
+  m_PrefabInstance: {fileID: 769780186031507843}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a334fe2ffb574b3583ff3b18b4792d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1157468219 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4965535311807703356, guid: ae4b54c3ede04ad48b7491f065ea4cc4,
@@ -2456,18 +2468,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3756885722264078509}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1741639082 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6973287475129327350, guid: afd8fd8614d1095468e58be0239973d5,
-    type: 3}
-  m_PrefabInstance: {fileID: 6323571330595317870}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a334fe2ffb574b3583ff3b18b4792d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &1760419809 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 1760419807, guid: 475f3d44e4ef82343845853587197f5a,
